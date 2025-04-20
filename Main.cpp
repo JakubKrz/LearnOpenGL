@@ -1,8 +1,11 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <filesystem>
 #include "Shader.h"
 #include "stb_image.h"
+
+float range;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -13,6 +16,13 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    else if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        range += 0.0001f;
+    } else if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        range -= 0.0001f;
+    }
 }
 
 int main()
@@ -40,11 +50,17 @@ int main()
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    Shader myShader("C:/Users/krzyw/Source/Repos/LearnOpengl/VertexShader.vert", "C:/Users/krzyw/Source/Repos/LearnOpengl/FragmentShader.frag");
+    auto projPath = std::filesystem::current_path();
+    std::filesystem::path vertexShaderPath = projPath / "VertexShader.vert";
+    std::filesystem::path fragmentShaderPath = projPath / "FragmentShader.frag";
+    Shader myShader(vertexShaderPath.string().c_str(), fragmentShaderPath.string().c_str());
+
     float vertices[] = {
-     -0.9f, -0.5f, 0.0f,  // left 
-     -0.0f, -0.5f, 0.0f,  // right
-     -0.45f, 0.5f, 0.0f  // top 
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.f, 1.f,   // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.f, 0.f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.f, 0.f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.f, 1.f    // top left 
     };
     float vertices2[] = { 0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // left
        0.9f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,  // right
@@ -58,55 +74,83 @@ int main()
         1.0f, 0.0f,
         0.5f, 1.0f
     };
-    // Texture loader
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load("C:/Users/krzyw/Desktop/Tiles131_2K - JPG_Color.jpg", &width, &height, &nrChannels, 0);
-
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(data);
-
-    unsigned int EBO;
+    unsigned int VBO, VAO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
-    unsigned int VBO[2];
-    glGenBuffers(2, VBO);
-    unsigned int VAO[2];
-    glGenVertexArrays(2, VAO);
+    glBindVertexArray(VAO);
 
-    
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glBindVertexArray(VAO[0]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    
-	glBindVertexArray(VAO[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); //Unbind
-    glBindVertexArray(0); //unbind
+    unsigned int texture1, texture2;
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_set_flip_vertically_on_load(true);
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load("Resources/Tiles.jpg", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    data = stbi_load("Resources/wall.jpg", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
+   // glBindBuffer(GL_ARRAY_BUFFER, 0); //Unbind
+    //glBindVertexArray(0); //unbind
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
     std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
-   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    myShader.use(); // don't forget to activate the shader before setting uniforms!  
+    glUniform1i(glGetUniformLocation(myShader.ID, "myTexture1"), 0); // set it manually
+    myShader.setInt("myTexture2", 1); // or with shader class
+
+    range = 0.5;
     while (!glfwWindowShouldClose(window))
     {
 
@@ -120,12 +164,16 @@ int main()
         myShader.use();
         myShader.setFloat("offset", offset);
         myShader.setFloat("offsetCos", offsetCos);
+        myShader.setFloat("range", range);
+        std::cout << range << std::endl;
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
 
-        glBindVertexArray(VAO[0]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        
-        glBindVertexArray(VAO[1]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
