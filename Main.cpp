@@ -2,6 +2,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <filesystem>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 #include "Shader.h"
 #include "stb_image.h"
 
@@ -23,6 +26,7 @@ void processInput(GLFWwindow* window)
     {
         range -= 0.0001f;
     }
+
 }
 
 int main()
@@ -149,8 +153,9 @@ int main()
     myShader.use(); // don't forget to activate the shader before setting uniforms!  
     glUniform1i(glGetUniformLocation(myShader.ID, "myTexture1"), 0); // set it manually
     myShader.setInt("myTexture2", 1); // or with shader class
-
+    glm::mat4 trans = glm::mat4(1.0f);
     range = 0.5;
+
     while (!glfwWindowShouldClose(window))
     {
 
@@ -158,14 +163,22 @@ int main()
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        float timeValue = glfwGetTime();
-        float offset = sin(timeValue) / 2.0f;
-        float offsetCos = cos(timeValue) / 2.0f;
+        //float timeValue = glfwGetTime();
+        //float offset = sin(timeValue) / 2.0f;
+        //float offsetCos = cos(timeValue) / 2.0f;
+
         myShader.use();
-        myShader.setFloat("offset", offset);
-        myShader.setFloat("offsetCos", offsetCos);
+        //myShader.setFloat("offset", offset);
+        //myShader.setFloat("offsetCos", offsetCos);
+        trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.5f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.5f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        myShader.setMat4("transform", trans);
         myShader.setFloat("range", range);
-        std::cout << range << std::endl;
+        //std::cout << range << std::endl;
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
@@ -174,6 +187,14 @@ int main()
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+        auto scaleFactor = (abs(sinf(glfwGetTime())) + 0.1)*0.8;
+        trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+        trans = glm::scale(trans, glm::vec3(scaleFactor));
+        
+        myShader.setMat4("transform", trans);
+        myShader.setFloat("range", range);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

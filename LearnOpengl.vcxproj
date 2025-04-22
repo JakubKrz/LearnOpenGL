@@ -100,7 +100,7 @@
     <LibraryPath>$(WindowsSDK_Library_Path_x64);C:\Libraries\GLFW\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Libraries\GLFW\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\krzyw\Downloads\glm-1.0.1-light\glm;C:\Libraries\GLFW\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\lib\x64;C:\Program Files %28x86%29\Windows Kits\10\Lib\10.0.22621.0\um\x64;C:\Libraries\GLFW\lib;$(WindowsSDK_LibraryPath_x64);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
