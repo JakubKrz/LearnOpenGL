@@ -10,6 +10,6 @@ uniform float range;
 
 void main()
 {
-    FragColor = mix(texture(myTexture1, texCoord), texture(myTexture2, texCoord), abs(range));
+    FragColor = mix(texture(myTexture1, texCoord), texture(myTexture2, texCoord), abs(0.5f));
     //texture(myTexture1, texCoord) * vec4(ourColor +0.5, 1.0);
 } 
