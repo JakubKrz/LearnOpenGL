@@ -26,6 +26,7 @@
   <ItemGroup>
     <None Include="FragmentShader.frag" />
     <None Include="lightSource.frag" />
+    <None Include="lightSource.vert" />
     <None Include="VertexShader.vert" />
   </ItemGroup>
   <ItemGroup>
