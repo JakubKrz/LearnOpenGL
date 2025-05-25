@@ -28,7 +28,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(1.2f, 1.0f, 0.0f);
 float range;
 
 int main()
@@ -267,11 +267,18 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         myShader.setMat4("view", view);
 
-       
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(deltaTime * 5.0f) * 3.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+        lightPos = glm::vec3(rotation * glm::vec4(lightPos, 1.0f));
+
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians((float)glfwGetTime()) * 5.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+       // model *= glm::rotate(0.1f * glfwGetTime(), 0.0f, 0.0f);
         myShader.setMat4("model", model);
         glm::vec3 lightPosView = glm::vec3(view * glm::vec4(lightPos, 1.0f));
         myShader.setVec3("lightPos", lightPosView);
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(view * model));
+        myShader.setMat4("normalMatrix", normalMatrix);
+
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
