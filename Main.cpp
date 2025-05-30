@@ -28,7 +28,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-glm::vec3 lightPos(1.2f, 1.0f, 0.0f);
+glm::vec3 lightPos(1.2f, 2.0f, 0.0f);
 float range;
 
 int main()
@@ -247,8 +247,6 @@ int main()
 
         
         myShader.use();
-        myShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        myShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         //myShader.setVec3("lightPos", lightPos);
         //myShader.setFloat("range", range);
 
@@ -275,10 +273,24 @@ int main()
        // model *= glm::rotate(0.1f * glfwGetTime(), 0.0f, 0.0f);
         myShader.setMat4("model", model);
         glm::vec3 lightPosView = glm::vec3(view * glm::vec4(lightPos, 1.0f));
-        myShader.setVec3("lightPos", lightPosView);
+        myShader.setVec3("light.position", lightPosView);
         glm::mat4 normalMatrix = glm::transpose(glm::inverse(view * model));
         myShader.setMat4("normalMatrix", normalMatrix);
 
+        myShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+        myShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+        myShader.setVec3("material.specular", 0.7f, 0.7f, 0.7f);
+        myShader.setFloat("material.shininess", 32.0f);
+        myShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        glm::vec3 lightColor;
+        lightColor.x = sin(glfwGetTime() * 2.0f);
+        lightColor.y = sin(glfwGetTime() * 0.7f);
+        lightColor.z = sin(glfwGetTime() * 1.3f);
+
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+        myShader.setVec3("light.diffuse", diffuseColor);
+        myShader.setVec3("light.specular", ambientColor);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
@@ -290,6 +302,7 @@ int main()
         lightShader.setMat4("model", model);
         lightShader.setMat4("view", view);
         lightShader.setMat4("projection", projection);
+        lightShader.setVec3("color", lightColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
