@@ -49,5 +49,6 @@
   <ItemGroup>
     <Image Include="Resources\Tiles.jpg" />
     <Image Include="Resources\wall.jpg" />
+    <Image Include="Resources\container2.png" />
   </ItemGroup>
 </Project>

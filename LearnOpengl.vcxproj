@@ -35,6 +35,7 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Resources\container2.png" />
     <Image Include="Resources\Tiles.jpg">
       <DeploymentContent>true</DeploymentContent>
     </Image>
