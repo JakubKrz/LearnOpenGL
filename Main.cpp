@@ -138,10 +138,17 @@ int main()
     glEnableVertexAttribArray(0);
 
     std::filesystem::path containerPath = projPath / "Resources/container2.png";
+    std::filesystem::path containerSpecularPath = projPath / "Resources/container2_specular.png";
+    std::filesystem::path matrixPath = projPath / "Resources/matrix.jpg";
     unsigned int diffuseMap = loadTexture(containerPath.string().c_str());
+    unsigned int specularMap = loadTexture(containerSpecularPath.string().c_str());
+    unsigned int emissionMap = loadTexture(matrixPath.string().c_str());
 
     LightingShader.use();
     LightingShader.setInt("material.diffuse", 0);
+    LightingShader.setInt("material.specular", 1);
+    LightingShader.setInt("material.emission", 2);
+
     
     range = 0.5;    
 
@@ -179,24 +186,23 @@ int main()
         LightingShader.setFloat("material.shininess", 32.0f);
         
         glm::vec3 lightColor;
-        lightColor.x = sin(glfwGetTime() * 2.0f);
-        lightColor.y = sin(glfwGetTime() * 0.7f);
-        lightColor.z = sin(glfwGetTime() * 1.3f);
-        lightColor.x = lightColor.x > 0 ? lightColor.x : 0.0f;
-        lightColor.y = lightColor.y > 0 ? lightColor.y : 0.0f;
-        lightColor.z = lightColor.z > 0 ? lightColor.z : 0.0f;
-        lightColor.x = 1.0f;
-        lightColor.y = 1.0f;
-        lightColor.z = 1.0f;
+        lightColor.x = (sin(glfwGetTime() * 2.0f) + 1.0f) * 0.5f;
+        lightColor.y = (sin(glfwGetTime() * 0.7f) + 1.0f) * 0.5f;
+        lightColor.z = (sin(glfwGetTime() * 1.3f) + 1.0f) * 0.5f;
+
 
         glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+        //glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
         LightingShader.setVec3("light.diffuse", diffuseColor);
-        LightingShader.setVec3("light.specular", ambientColor);
+        LightingShader.setVec3("light.specular", lightColor);
         LightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);

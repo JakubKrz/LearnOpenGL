@@ -50,5 +50,7 @@
     <Image Include="Resources\Tiles.jpg" />
     <Image Include="Resources\wall.jpg" />
     <Image Include="Resources\container2.png" />
+    <Image Include="Resources\container2_specular.png" />
+    <Image Include="Resources\matrix.jpg" />
   </ItemGroup>
 </Project>
