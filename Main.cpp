@@ -149,7 +149,18 @@ int main()
     LightingShader.setInt("material.specular", 1);
     LightingShader.setInt("material.emission", 2);
 
-    
+    glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f,  0.0f,  0.0f),
+    glm::vec3(2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.5f,  2.0f, -2.5f),
+    glm::vec3(1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
     range = 0.5;    
 
     while (!glfwWindowShouldClose(window))
@@ -169,16 +180,17 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians((float)glfwGetTime()) * 5.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+        //model = glm::rotate(model, glm::radians((float)glfwGetTime()) * 5.0f, glm::vec3(1.0f, 1.0f, 0.0f));
         LightingShader.setMat4("model", model);
         LightingShader.setMat4("view", view);
         LightingShader.setMat4("projection", projection);
 
 
         glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(deltaTime * 5.0f) * 3.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-        lightPos = glm::vec3(rotation * glm::vec4(lightPos, 1.0f));       
-        glm::vec3 lightPosView = glm::vec3(view * glm::vec4(lightPos, 1.0f));
-        LightingShader.setVec3("light.position", lightPosView);
+        //lightPos = glm::vec3(rotation * glm::vec4(lightPos, 1.0f));       
+        //glm::vec3 lightPosView = glm::vec3(view * glm::vec4(lightPos, 1.0f));
+        //LightingShader.setVec3("light.position", lightPosView);
+        LightingShader.setVec3("light.direction", -0.0f, 1.0f, -0.0f);
         glm::mat4 normalMatrix = glm::transpose(glm::inverse(view * model));
         LightingShader.setMat4("normalMatrix", normalMatrix);
 
@@ -186,11 +198,11 @@ int main()
         LightingShader.setFloat("material.shininess", 32.0f);
         
         glm::vec3 lightColor;
-        lightColor.x = (sin(glfwGetTime() * 2.0f) + 1.0f) * 0.5f;
-        lightColor.y = (sin(glfwGetTime() * 0.7f) + 1.0f) * 0.5f;
-        lightColor.z = (sin(glfwGetTime() * 1.3f) + 1.0f) * 0.5f;
+        //lightColor.x = (sin(glfwGetTime() * 2.0f) + 1.0f) * 0.5f;
+        //lightColor.y = (sin(glfwGetTime() * 0.7f) + 1.0f) * 0.5f;
+        //lightColor.z = (sin(glfwGetTime() * 1.3f) + 1.0f) * 0.5f;
 
-
+        lightColor = glm::vec3(1.0f, 0.5f, 1.0f);
         glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
         //glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
         LightingShader.setVec3("light.diffuse", diffuseColor);
@@ -205,10 +217,21 @@ int main()
         glBindTexture(GL_TEXTURE_2D, emissionMap);
 
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        
-        glBindVertexArray(lightSourceVAO);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            LightingShader.setMat4("model", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        /*glBindVertexArray(lightSourceVAO);
         model = glm::mat4(1.0f);
+        lightPos = glm::vec3(3.f, 3.f, 0.0f);
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
         lightSourceShader.use();
@@ -216,7 +239,7 @@ int main()
         lightSourceShader.setMat4("view", view);
         lightSourceShader.setMat4("projection", projection);
         lightSourceShader.setVec3("color", lightColor);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 36);*/
 
         glfwSwapBuffers(window);
         glfwPollEvents();
