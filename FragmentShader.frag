@@ -30,6 +30,7 @@ void main()
     
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(-light.direction);
+
     float diff = max(dot(lightDir, norm), 0.0);
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
 
@@ -37,6 +38,7 @@ void main()
     vec3 halfVector = normalize(viewDir + lightDir);
     float spec = pow(max(dot(halfVector, norm), 0.0f), material.shininess);
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+
     vec3 emissionColor = vec3(texture(material.emission, TexCoords));
     emissionColor.r = emissionColor.g;
     emissionColor.b = emissionColor.g;

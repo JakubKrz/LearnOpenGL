@@ -114,6 +114,19 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
 
+    glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f,  0.0f,  0.0f),
+    glm::vec3(2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.5f,  2.0f, -2.5f),
+    glm::vec3(1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -149,18 +162,8 @@ int main()
     LightingShader.setInt("material.specular", 1);
     LightingShader.setInt("material.emission", 2);
 
-    glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f,  0.0f,  0.0f),
-    glm::vec3(2.0f,  5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3(2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3(1.3f, -2.0f, -2.5f),
-    glm::vec3(1.5f,  2.0f, -2.5f),
-    glm::vec3(1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
+    glm::vec3 ligthDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+    
     range = 0.5;    
 
     while (!glfwWindowShouldClose(window))
@@ -190,9 +193,9 @@ int main()
         //lightPos = glm::vec3(rotation * glm::vec4(lightPos, 1.0f));       
         //glm::vec3 lightPosView = glm::vec3(view * glm::vec4(lightPos, 1.0f));
         //LightingShader.setVec3("light.position", lightPosView);
-        LightingShader.setVec3("light.direction", -0.0f, 1.0f, -0.0f);
-        glm::mat4 normalMatrix = glm::transpose(glm::inverse(view * model));
-        LightingShader.setMat4("normalMatrix", normalMatrix);
+        glm::vec3 ligthDir = glm::normalize(glm::mat3(view) * ligthDirection);
+        LightingShader.setVec3("light.direction", ligthDir);
+        
 
         LightingShader.setVec3("material.specular", 0.7f, 0.7f, 0.7f);
         LightingShader.setFloat("material.shininess", 32.0f);
@@ -202,7 +205,7 @@ int main()
         //lightColor.y = (sin(glfwGetTime() * 0.7f) + 1.0f) * 0.5f;
         //lightColor.z = (sin(glfwGetTime() * 1.3f) + 1.0f) * 0.5f;
 
-        lightColor = glm::vec3(1.0f, 0.5f, 1.0f);
+        lightColor = glm::vec3(1.0f, 0.0f, 1.0f);
         glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
         //glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
         LightingShader.setVec3("light.diffuse", diffuseColor);
@@ -225,6 +228,8 @@ int main()
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             LightingShader.setMat4("model", model);
+            glm::mat4 normalMatrix = glm::transpose(glm::inverse(view * model));
+            LightingShader.setMat4("normalMatrix", normalMatrix);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
