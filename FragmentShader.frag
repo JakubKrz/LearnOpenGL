@@ -10,6 +10,7 @@ struct Light {
     vec3 position;
     vec3 direction;
     float cutOff;
+    float outerCutOff;
   
     vec3 ambient;
     vec3 diffuse;
@@ -35,6 +36,10 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.position-FragPos);
 
+    float theta     = dot(lightDir, normalize(-light.direction));
+    float epsilon   = light.cutOff - light.outerCutOff;
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
     vec3 emissionColor = vec3(texture(material.emission, TexCoords));
     emissionColor.r = emissionColor.g;
     emissionColor.b = emissionColor.g;
@@ -43,9 +48,6 @@ void main()
     {
         emissionColor = vec3(0.0f, 0.0f, 0.0f);
     }
-
-    
-    if(theta > light.cutOff) {
 
     float diff = max(dot(lightDir, norm), 0.0);
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
@@ -57,18 +59,14 @@ void main()
     
     float distance = length(light.position-FragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + 
-    		    light.quadratic * (distance * distance)); 
+    		    light.quadratic * (distance * distance));
+
     ambient  *= attenuation; 
     diffuse  *= attenuation;
+    diffuse *= intensity;
     specular *= attenuation;
+    specular *= intensity;
     
     FragColor = vec4(ambient + diffuse + specular + emissionColor, 1.0);
-
-    }
-    else
-    {
-    FragColor = vec4(light.ambient * vec3(texture(material.diffuse, TexCoords)) + emissionColor, 1.0f);
-    }
-
 
 }

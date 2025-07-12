@@ -197,6 +197,7 @@ int main()
         LightingShader.setVec3("light.position", glm::vec3(view * glm::vec4(camera.Position,1.0f)));
         LightingShader.setVec3("light.direction", glm::mat3(view) * camera.Front);
         LightingShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        LightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 
         glm::vec3 ligthDir = glm::normalize(glm::mat3(view) * ligthDirection);
         //LightingShader.setVec3("light.direction", ligthDir);
@@ -217,8 +218,8 @@ int main()
         LightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         
         LightingShader.setFloat("light.constant", 1.0f);
-        LightingShader.setFloat("light.linear", 0.09f);
-        LightingShader.setFloat("light.quadratic", 0.032f);
+        LightingShader.setFloat("light.linear", 0.07f);
+        LightingShader.setFloat("light.quadratic", 0.017f);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
