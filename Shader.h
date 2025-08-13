@@ -1,7 +1,9 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <glad/glad.h>
+
+#include <glm.hpp>
+#include <gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <string>
@@ -120,5 +122,3 @@ public:
     }
 
 };
-
-#endif

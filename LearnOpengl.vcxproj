@@ -24,6 +24,8 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BackpackShader.frag" />
+    <None Include="BackpackShader.vert" />
     <None Include="FragmentShader.frag" />
     <None Include="lightSource.frag" />
     <None Include="lightSource.vert" />
@@ -31,6 +33,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
