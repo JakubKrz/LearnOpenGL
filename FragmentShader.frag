@@ -56,6 +56,9 @@ in vec2 TexCoords;
 
 out vec4 FragColor;
 
+float near = 0.1; 
+float far  = 100.0;
+
 void main()
 {
     vec3 norm = normalize(Normal);
@@ -78,7 +81,12 @@ void main()
     }
     outputColor += emissionColor;
    
-    FragColor = vec4(outputColor, 1.0);
+
+    float ndc = gl_FragCoord.z * 2.0 - 1.0;
+    float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near)) / 20.0;
+    float depthInv = 1 - linearDepth;
+    FragColor = vec4(outputColor * depthInv , 1.0);
+
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
